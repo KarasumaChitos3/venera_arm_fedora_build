@@ -17,27 +17,17 @@ jobs:
       - run: |
           flutter pub get
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libgtk-3-dev webkit2gtk-4.1
-          dart pub global activate -s git https://github.com/venera-app/flutter_to_debian.git
+          sudo apt-get install -y ninja-build libgtk-3-dev webkit2gtk-4.1 rpm rpmdevtools
       - name: "Patch font"
         run: |
           dart run patch/font.dart
-      - run: python3 debian/build.py arm64
-    # 6. 安装转换工具 alien
-      - name: Install alien for conversion
-        run: sudo apt-get install -y alien
+      - name: Build Fedora RPM
+        run: python3 fedora/build.py arm64
 
-      # 7. 将 .deb 包转换为 .rpm 包
-      - name: Convert .deb to .rpm
-        run: |
-          DEB_FILE=$(find build/linux/x64/release/debian -name "*.deb")
-          sudo alien --to-rpm --scripts "$DEB_FILE"
-
-      # 8. 上传构建好的 .rpm 文件作为产物
+      # 上传构建好的 .rpm 文件作为产物
       - name: Upload .rpm Artifact
         uses: actions/upload-artifact@v4
         with:
           name: venera-arm64-rpm
-          # alien 会在当前目录下生成 .rpm 文件
-          path: ./*.rpm
+          path: build/linux/arm64/release/rpm/*.rpm
 

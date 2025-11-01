@@ -1,0 +1,47 @@
+Name:           venera
+Version:        {{Version}}
+Release:        1%{?dist}
+Summary:        Venera Flutter application
+
+License:        GPLv3
+URL:            https://github.com/wgh136/venera
+Source0:        venera-{{Version}}.tar.gz
+
+BuildArch:      {{RpmArch}}
+
+Requires:       gtk3, webkit2gtk4.1
+
+%description
+Venera is a Flutter-based application.
+
+%prep
+%setup -q -n venera-%{version}
+
+%build
+# No build steps required; we package the prebuilt Flutter bundle.
+
+%install
+rm -rf %{buildroot}
+install -d %{buildroot}%{_libdir}/venera
+cp -a bundle/* %{buildroot}%{_libdir}/venera/
+
+install -d %{buildroot}%{_bindir}
+install -m 0755 venera.sh %{buildroot}%{_bindir}/venera
+
+install -d %{buildroot}%{_datadir}/applications
+install -m 0644 venera.desktop %{buildroot}%{_datadir}/applications/venera.desktop
+
+install -d %{buildroot}%{_datadir}/pixmaps
+install -m 0644 venera.png %{buildroot}%{_datadir}/pixmaps/venera.png
+
+%files
+%{_bindir}/venera
+%{_libdir}/venera
+%{_datadir}/applications/venera.desktop
+%{_datadir}/pixmaps/venera.png
+
+%post
+update-desktop-database &> /dev/null || :
+
+%postun
+update-desktop-database &> /dev/null || :
